@@ -43,8 +43,14 @@ jobs:
         run: |
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+      # ✅ Force Buildozer SDK
+      - name: Force Buildozer to use correct SDK
+        run: |
+          echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
 
       # ✅ Build APK
       - name: Build APK
         run: |
           buildozer android debug
+        env:
+          ANDROIDSDK: ${{ env.ANDROID_HOME }}
