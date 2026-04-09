@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install system dependencies
+      # ✅ Install system dependencies
       - name: Install packages
         run: |
           sudo apt update
@@ -17,13 +17,13 @@ jobs:
             python3-pip git zip unzip openjdk-17-jdk \
             build-essential libffi-dev libssl-dev zlib1g-dev
 
-      # Install Python tools
+      # ✅ Install Python tools
       - name: Install tools
         run: |
-          pip install --upgrade pip setuptools wheel
-          pip install buildozer cython
+          pip install --upgrade pip
+          pip install buildozer cython setuptools wheel
 
-      # Install Android SDK
+      # ✅ Install Android SDK
       - name: Install Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
@@ -32,37 +32,37 @@ jobs:
           unzip tools.zip
           mv cmdline-tools latest
 
-      # Set environment
+      # ✅ Set environment variables
       - name: Set environment
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
-      # Setup SDK
+      # ✅ Accept licenses & install SDK
       - name: Setup SDK
         run: |
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-      # Clean buildozer
+      # 🔥 Clean old buildozer
       - name: Clean Buildozer
         run: |
           rm -rf $HOME/.buildozer
 
-      # Link SDK
+      # 🔥 Link SDK to Buildozer
       - name: Link SDK to Buildozer
         run: |
           mkdir -p $HOME/.buildozer/android/platform/
           ln -s $ANDROID_HOME $HOME/.buildozer/android/platform/android-sdk
 
-      # Fix sdkmanager path
-      - name: Fix Android tools
+      # 🔥 Fix sdkmanager path (IMPORTANT)
+      - name: Fix Android tools for Buildozer
         run: |
           mkdir -p $ANDROID_HOME/tools/bin
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
 
-      # Build APK
+      # ✅ Build APK
       - name: Build APK
         run: |
           buildozer android debug
