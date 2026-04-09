@@ -1,0 +1,26 @@
+name: Build APK
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install packages
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip git zip unzip openjdk-17-jdk
+
+    - name: Install tools
+      run: |
+        pip install buildozer cython
+
+    - name: Build APK
+      run: |
+        buildozer init
+        sed -i 's/title = My Application/title = My First App/' buildozer.spec
+        sed -i 's/package.name = myapp/package.name = myfirstapp/' buildozer.spec
+        buildozer android debug
