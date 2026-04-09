@@ -68,5 +68,5 @@ jobs:
           buildozer android debug
 
       - name: Install Python dependencies
-  run: |
-    pip install --upgrade pip setuptools wheel
+        run: |
+          pip install --upgrade pip setuptools wheel
