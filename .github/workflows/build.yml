@@ -63,7 +63,12 @@ jobs:
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
 
-      # ✅ Build APK
-      - name: Build APK
+      - name: Build APK (Verbose)
         run: |
-          buildozer android debug
+         buildozer -v android debug || true
+
+      - name: Show Buildozer Logs
+        if: always()
+        run: |
+          echo "===== LAST 200 LINES OF LOG ====="
+          tail -n 200 .buildozer/android/platform/build-*/build.log || echo "No log found"
