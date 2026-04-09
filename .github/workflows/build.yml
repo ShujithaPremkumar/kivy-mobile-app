@@ -18,14 +18,13 @@ jobs:
         run: |
           pip install buildozer cython
 
-      # ✅ ADD THIS HERE (inside steps, not top)
-      - name: Accept Android SDK Licenses
+      - name: Set Android SDK path
+        run: echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+
+      - name: Accept Licenses
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
 
       - name: Build APK
         run: |
-          buildozer init
-          sed -i 's/title = My Application/title = My First App/' buildozer.spec
-          sed -i 's/package.name = myapp/package.name = myfirstapp/' buildozer.spec
           buildozer android debug
