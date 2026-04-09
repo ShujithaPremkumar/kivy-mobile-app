@@ -65,7 +65,7 @@ jobs:
 
       - name: Build APK (Verbose)
         run: |
-         buildozer -v android debug || true
+         buildozer -v android debug
 
       - name: Show Buildozer Logs
         if: always()
