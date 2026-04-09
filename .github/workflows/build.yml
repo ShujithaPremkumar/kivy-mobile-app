@@ -44,15 +44,23 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-      # 🔥 IMPORTANT FIX (Buildozer issue)
+      # 🔥 Clean old buildozer
       - name: Clean Buildozer
         run: |
           rm -rf $HOME/.buildozer
 
+      # 🔥 Link SDK to Buildozer
       - name: Link SDK to Buildozer
         run: |
           mkdir -p $HOME/.buildozer/android/platform/
           ln -s $ANDROID_HOME $HOME/.buildozer/android/platform/android-sdk
+
+      # 🔥 FIX sdkmanager path issue (IMPORTANT)
+      - name: Fix Android tools for Buildozer
+        run: |
+          mkdir -p $ANDROID_HOME/tools/bin
+          ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
+          ln -s $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
 
       # ✅ Build APK
       - name: Build APK
