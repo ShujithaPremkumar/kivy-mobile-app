@@ -23,7 +23,7 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
 
-      # ✅ Install Android SDK properly
+      # ✅ Install Android SDK
       - name: Install Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
@@ -41,16 +41,20 @@ jobs:
       # ✅ Accept licenses & install SDK components
       - name: Setup SDK
         run: |
-          yes | sdkmanager --licenses
+          yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-      # ✅ Force Buildozer SDK
-      - name: Force Buildozer to use correct SDK
+
+      # 🔥 IMPORTANT FIX (Buildozer issue)
+      - name: Clean Buildozer
         run: |
-          echo "ANDROIDSDK=$ANDROID_HOME" >> $GITHUB_ENV
+          rm -rf $HOME/.buildozer
+
+      - name: Link SDK to Buildozer
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform/
+          ln -s $ANDROID_HOME $HOME/.buildozer/android/platform/android-sdk
 
       # ✅ Build APK
       - name: Build APK
         run: |
           buildozer android debug
-        env:
-          ANDROIDSDK: ${{ env.ANDROID_HOME }}
