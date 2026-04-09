@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ✅ Install system dependencies
+      # Install system dependencies
       - name: Install packages
         run: |
           sudo apt update
@@ -18,13 +18,13 @@ jobs:
             build-essential libffi-dev libssl-dev zlib1g-dev \
             libjpeg-dev libsqlite3-dev
 
-      # ✅ Install Python tools
+      # Install Python tools
       - name: Install tools
         run: |
           pip install --upgrade pip
           pip install buildozer cython setuptools wheel
 
-      # ✅ Install Android SDK
+      # Install Android SDK
       - name: Install Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
@@ -33,54 +33,49 @@ jobs:
           unzip tools.zip
           mv cmdline-tools latest
 
-      # ✅ Set environment variables
+      # Set environment variables
       - name: Set environment
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
-      # ✅ Accept licenses & install SDK
+      # Setup SDK
       - name: Setup SDK
         run: |
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-      # 🔥 Clean old buildozer
+      # Clean Buildozer
       - name: Clean Buildozer
-        run: |
-          rm -rf $HOME/.buildozer
+        run: rm -rf $HOME/.buildozer
 
-      # 🔥 Link SDK to Buildozer
+      # Link SDK
       - name: Link SDK to Buildozer
         run: |
           mkdir -p $HOME/.buildozer/android/platform/
           ln -s $ANDROID_HOME $HOME/.buildozer/android/platform/android-sdk
 
-      # 🔥 Fix sdkmanager path (IMPORTANT)
-      - name: Fix Android tools for Buildozer
+      # Fix sdkmanager path
+      - name: Fix Android tools
         run: |
           mkdir -p $ANDROID_HOME/tools/bin
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
           ln -s $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager $ANDROID_HOME/tools/bin/avdmanager
 
-      - name: Build APK (Verbose)
-        run: |
-         buildozer -v android debug || true
+      # Build APK
+      - name: Build APK
+        run: buildozer -v android debug
 
+      # Show logs if failed
       - name: Show Buildozer Logs
-        if: always()
+        if: failure()
         run: |
-         echo "===== LAST 200 LINES OF LOG ====="
-         tail -n 200 .buildozer/android/platform/build-*/build.log || echo "No log found"
-
-      - name: Show Buildozer Logs
-        if: always()
-        run: |
-          echo "===== LAST 200 LINES OF LOG ====="
+          echo "===== LAST 200 LINES ====="
           tail -n 200 .buildozer/android/platform/build-*/build.log || echo "No log found"
-# to get apk link
+
+      # Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-           name: apk
-           path: bin/*.apk
+          name: apk
+          path: bin/*.apk
