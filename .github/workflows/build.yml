@@ -9,22 +9,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ Install system dependencies
       - name: Install packages
         run: |
           sudo apt update
-          sudo apt install -y python3-pip git zip unzip openjdk-17-jdk
+          sudo apt install -y \
+            python3-pip git zip unzip openjdk-17-jdk \
+            build-essential libffi-dev libssl-dev zlib1g-dev
 
+      # ✅ Install Python tools
       - name: Install tools
         run: |
+          pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Set Android SDK path
-        run: echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-
-      - name: Accept Licenses
+      # ✅ Install Android SDK properly
+      - name: Install Android SDK
         run: |
-          yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip tools.zip
+          mv cmdline-tools latest
 
+      # ✅ Set environment variables
+      - name: Set environment
+        run: |
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+
+      # ✅ Accept licenses & install SDK components
+      - name: Setup SDK
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+
+      # ✅ Build APK
       - name: Build APK
         run: |
           buildozer android debug
