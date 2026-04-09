@@ -65,7 +65,13 @@ jobs:
 
       - name: Build APK (Verbose)
         run: |
-         buildozer -v android debug
+         buildozer -v android debug || true
+
+      - name: Show Buildozer Logs
+        if: always()
+        run: |
+         echo "===== LAST 200 LINES OF LOG ====="
+         tail -n 200 .buildozer/android/platform/build-*/build.log || echo "No log found"
 
       - name: Show Buildozer Logs
         if: always()
