@@ -1,5 +1,5 @@
 [app]
-title = My App
+title = MyApp
 package.name = myapp
 package.domain = org.test
 
